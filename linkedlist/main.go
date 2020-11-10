@@ -9,11 +9,16 @@ import (
 func main() {
 	var ll linkedlist.LinkedList = &linkedlist.SinglyLinkedList{}
 
-	ll.AddNode(2)
-	ll.AddNode(5)
-	ll.AddNode(6)
-
-	fmt.Println(ll.ToString())
-	// fmt.Println(ll.Length())
+	ll.AddItem(2)
+	ll.AddItem("five")
+	ll.AddItem(6)
+	n, err := ll.GetItem(2)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(n)
+		fmt.Println(ll.ToString())
+		fmt.Println(ll.Length())
+	}
 
 }
