@@ -17,33 +17,28 @@ func (ie *IndexError) Index() int {
 	return ie.index
 }
 
-// LinkedList interface
-type LinkedList interface {
-	Length() int
-	GetItem(index int) (*Node, error)
-	AddItem(value interface{})
-	InsertItem(value interface{}, index int) error
-	ToString() string
+func outOfBounds(length, index int) bool {
+	return index >= length || index < 0
 }
 
-// Node A node in a linked list
+// Node A Node in a linked list
 type Node struct {
 	Value interface{}
 	Next  *Node
 }
 
-// SinglyLinkedList Singly linked list
-type SinglyLinkedList struct {
+// LinkedList Singly linked list
+type LinkedList struct {
 	Head   *Node
 	length int
 }
 
-// GetItem Gets the item at index. Throws an error if the index
+// Get Gets the item at index. Throws an error if the index
 // doesn't exist
-func (ll *SinglyLinkedList) GetItem(index int) (*Node, error) {
+func (ll *LinkedList) Get(index int) (*Node, error) {
 	var n *Node
-	if index >= ll.length || index < 0 {
-		return n, &IndexError{message: "Not a valid index", index: index}
+	if outOfBounds(ll.length, index) {
+		return n, &IndexError{message: fmt.Sprintf("Not a valid index: %d", index), index: index}
 	}
 	n = ll.Head
 	for i := 0; i < ll.length; i++ {
@@ -55,9 +50,9 @@ func (ll *SinglyLinkedList) GetItem(index int) (*Node, error) {
 	return n, nil
 }
 
-// AddItem Adds a Node to the end of the linked list
-func (ll *SinglyLinkedList) AddItem(value interface{}) {
-	// Make new node with value given
+// Add Adds a Node to the end of the linked list
+func (ll *LinkedList) Add(value interface{}) {
+	// Make new Node with value given
 	newNode := &Node{Value: value, Next: nil}
 	// If we don't have a head then add one
 	if ll.Head == nil {
@@ -73,44 +68,77 @@ func (ll *SinglyLinkedList) AddItem(value interface{}) {
 	ll.length++
 }
 
-// InsertItem Adds the value at the specified index
+// Insert Adds the value at the specified index
 // Returns an error if the index does not exist
-func (ll *SinglyLinkedList) InsertItem(value interface{}, index int) error {
-	if index >= ll.length || index < 0 {
-		return &IndexError{message: "Not a valid index", index: index}
+func (ll *LinkedList) Insert(value interface{}, index int) error {
+	if outOfBounds(ll.length, index) {
+		return &IndexError{message: fmt.Sprintf("Not a valid index: %d", index), index: index}
 	}
-	if index == 0 {
-		newNode := &Node{Value: value, Next: ll.Head}
-		ll.Head = newNode
+
+	prevIndex := index - 1
+	if prevIndex >= 0 {
+		// We have to insert it between 2
+		prev, _ := ll.Get(prevIndex)
+		newNode := &Node{Value: value, Next: prev.Next}
+		prev.Next = newNode
 	} else {
-		i := 0
-		n := ll.Head
-		for n.Next != nil {
-			if i == (index - 1) {
-				newNode := &Node{Value: value, Next: n.Next}
-				n.Next = newNode
-				break
-			}
-			i++
-		}
+		// New head
+		h := ll.Head
+		newNode := &Node{Value: value, Next: h}
+		ll.Head = newNode
 	}
 	ll.length++
 	return nil
 }
 
-// ToString creates a string of the linked list
-func (ll *SinglyLinkedList) ToString() string {
+// Remove Removes the Node at the index and returns it or throws an IndexError if the index is out of
+// bounds
+func (ll *LinkedList) Remove(index int) (*Node, error) {
+	if outOfBounds(ll.length, index) {
+		return nil, &IndexError{message: fmt.Sprintf("Not a valid index: %d", index), index: index}
+	}
+
+	var toRemove *Node
+	prevIndex := index - 1
+	if prevIndex >= 0 {
+		// Disconnect at the previous index and point the previous index to what the node at index
+		// pointed to
+		prev, _ := ll.Get(prevIndex)
+		toRemove = prev.Next
+		prev.Next = toRemove.Next
+	} else {
+		// Removing head
+		toRemove = ll.Head
+		ll.Head = ll.Head.Next
+	}
+	ll.length--
+	return toRemove, nil
+}
+
+// Contains Checks that the list contains the value
+func (ll *LinkedList) Contains(value interface{}) bool {
+	n := ll.Head
+	for n.Next != nil {
+		if n.Value == value {
+			return true
+		}
+		n = n.Next
+	}
+	return false
+}
+
+// ToString creates a string representation of the linked list
+func (ll *LinkedList) ToString() string {
 	n := ll.Head
 	str := fmt.Sprintf("%v", n.Value)
 	for n.Next != nil {
 		n = n.Next
 		str = fmt.Sprintf("%v -> %v", str, n.Value)
 	}
-	str = fmt.Sprintf("%v -> %v", str, nil)
 	return str
 }
 
 // Length Returns the amount of items in the linked list
-func (ll *SinglyLinkedList) Length() int {
+func (ll *LinkedList) Length() int {
 	return ll.length
 }
