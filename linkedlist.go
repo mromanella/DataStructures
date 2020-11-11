@@ -29,7 +29,7 @@ type Node struct {
 
 // LinkedList Singly linked list
 type LinkedList struct {
-	Head   *Node
+	head   *Node
 	length int
 }
 
@@ -40,7 +40,7 @@ func (ll *LinkedList) Get(index int) (*Node, error) {
 	if outOfBounds(ll.length, index) {
 		return n, &IndexError{message: fmt.Sprintf("Not a valid index: %d", index), index: index}
 	}
-	n = ll.Head
+	n = ll.head
 	for i := 0; i < ll.length; i++ {
 		if i == index {
 			break
@@ -55,11 +55,11 @@ func (ll *LinkedList) Add(value interface{}) {
 	// Make new Node with value given
 	newNode := &Node{Value: value, Next: nil}
 	// If we don't have a head then add one
-	if ll.Head == nil {
-		ll.Head = newNode
+	if ll.head == nil {
+		ll.head = newNode
 	} else {
 		// Otherwise loop through till we find the tail and append to it
-		n := ll.Head
+		n := ll.head
 		for n.Next != nil {
 			n = n.Next
 		}
@@ -83,9 +83,9 @@ func (ll *LinkedList) Insert(value interface{}, index int) error {
 		prev.Next = newNode
 	} else {
 		// New head
-		h := ll.Head
+		h := ll.head
 		newNode := &Node{Value: value, Next: h}
-		ll.Head = newNode
+		ll.head = newNode
 	}
 	ll.length++
 	return nil
@@ -108,8 +108,8 @@ func (ll *LinkedList) Remove(index int) (*Node, error) {
 		prev.Next = toRemove.Next
 	} else {
 		// Removing head
-		toRemove = ll.Head
-		ll.Head = ll.Head.Next
+		toRemove = ll.head
+		ll.head = ll.head.Next
 	}
 	ll.length--
 	return toRemove, nil
@@ -117,7 +117,7 @@ func (ll *LinkedList) Remove(index int) (*Node, error) {
 
 // Contains Checks that the list contains the value
 func (ll *LinkedList) Contains(value interface{}) bool {
-	n := ll.Head
+	n := ll.head
 	for n.Next != nil {
 		if n.Value == value {
 			return true
@@ -129,7 +129,7 @@ func (ll *LinkedList) Contains(value interface{}) bool {
 
 // ToString creates a string representation of the linked list
 func (ll *LinkedList) ToString() string {
-	n := ll.Head
+	n := ll.head
 	str := fmt.Sprintf("%v", n.Value)
 	for n.Next != nil {
 		n = n.Next
